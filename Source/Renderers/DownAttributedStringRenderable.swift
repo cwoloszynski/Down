@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import libcmark
 
 public protocol DownAttributedStringRenderable: DownHTMLRenderable {
@@ -37,5 +38,17 @@ public extension DownAttributedStringRenderable {
     public func toAttributedString(_ options: DownOptions = .Default) throws -> NSAttributedString {
         let html = try self.toHTML(options)
         return try NSAttributedString(htmlString: html)
+    }
+    
+    public func toAttributedString(baseFont font: UIFont) throws -> NSAttributedString {
+        let html = try self.toHTML(.Default)
+        // Apple needs to have the font names mapped so ...
+        var fontFamily = font.familyName
+        if fontFamily == UIFont.systemFont(ofSize: 10).familyName {
+            fontFamily = "-apple-system" // Replacement for system font family name
+        }
+        let fontedHTML = "<span style=\"font-family: \(fontFamily); font-size: \(font.pointSize)\">\(html)</span>"
+        return try NSAttributedString(htmlString: fontedHTML)
+       
     }
 }
